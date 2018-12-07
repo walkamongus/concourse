@@ -1,0 +1,21 @@
+---
+concourse::node_type: 'standalone'
+concourse::environment:
+  CONCOURSE_ADD_LOCAL_USER: 'myuser:mypass'
+  CONCOURSE_MAIN_TEAM_LOCAL_USER: 'myuser'
+  CONCOURSE_EXTERNAL_URL: "http://%{facts.fqdn}:8080"
+  CONCOURSE_WORK_DIR: '/opt/concourse/worker'
+  CONCOURSE_SESSION_SIGNING_KEY: '/opt/concourse/session_signing_key'
+  CONCOURSE_TSA_HOST_KEY: '/opt/concourse/tsa_host_key'
+  CONCOURSE_TSA_PUBLIC_KEY: '/opt/concourse/tsa_host_key.pub'
+  CONCOURSE_TSA_WORKER_PRIVATE_KEY: '/opt/concourse/worker_key'
+  CONCOURSE_TSA_AUTHORIZED_KEYS: '/opt/concourse/authorized_worker_keys'
+concourse::proxy_server: ~
+concourse::version: '4.2.1'
+concourse::install_fly: true
+concourse::generate_tsa_host_key: true
+concourse::generate_session_signing_key: true
+concourse::generate_worker_key: true
+concourse::upgrade_kernel: false
+concourse::concourse_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/concourse_linux_amd64"
+concourse::fly_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/fly_linux_amd64"
