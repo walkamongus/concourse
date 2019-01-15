@@ -43,6 +43,9 @@
 # @param fly_source
 #   Specifies the download location for the fly cli binary.
 #
+# @param worker_name
+#   Specifies the name of the concourse worker.
+#
 class concourse (
   Enum['worker', 'web', 'standalone'] $node_type,
   Hash[Pattern[/^CONCOURSE_/, /^(http|https|no)_proxy$/], Variant[String, Boolean], 1] $environment,
@@ -55,6 +58,7 @@ class concourse (
   Boolean $upgrade_kernel,
   Stdlib::Httpurl $concourse_source,
   Stdlib::Httpurl $fly_source,
+  String $worker_name,
 ){
 
   class { 'concourse::install':
@@ -75,6 +79,7 @@ class concourse (
   class { 'concourse::config':
     node_type   => $node_type,
     environment => $environment,
+    worker_name => $worker_name,
   }
   contain 'concourse::config'
 

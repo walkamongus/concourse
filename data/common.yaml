@@ -19,3 +19,4 @@ concourse::generate_worker_key: true
 concourse::upgrade_kernel: false
 concourse::concourse_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/concourse_linux_amd64"
 concourse::fly_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/fly_linux_amd64"
+concourse::worker_name: "%{facts.fqdn}"

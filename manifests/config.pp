@@ -6,17 +6,19 @@
 #   include concourse
 class concourse::config (
   $node_type,
+  $worker_name,
   $environment,
 ){
 
-  $env_vars = $environment.map |$key, $value| { "${key}=${value}" }
+  $_name_env_var = "CONCOURSE_NAME=${worker_name}"
+  $_env_vars = $environment.map |$key, $value| { "${key}=${value}" }
 
   file { "/etc/concourse/${node_type}":
     ensure  => file,
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
-    content => join($env_vars, "\n"),
+    content => join($_env_vars << $_name_env_var, "\n"),
   }
 
   if $node_type == 'standalone' {
