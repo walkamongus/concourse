@@ -11,12 +11,12 @@ concourse::environment:
   CONCOURSE_TSA_WORKER_PRIVATE_KEY: '/opt/concourse/worker_key'
   CONCOURSE_TSA_AUTHORIZED_KEYS: '/opt/concourse/authorized_worker_keys'
 concourse::proxy_server: ~
-concourse::version: '4.2.1'
+concourse::version: '5.1.0'
 concourse::install_fly: true
 concourse::generate_tsa_host_key: true
 concourse::generate_session_signing_key: true
 concourse::generate_worker_key: true
 concourse::upgrade_kernel: false
-concourse::concourse_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/concourse_linux_amd64"
-concourse::fly_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/fly_linux_amd64"
+concourse::concourse_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/concourse-%{lookup('concourse::version')}-linux-amd64.tgz"
+concourse::fly_source: "https://github.com/concourse/concourse/releases/download/v%{lookup('concourse::version')}/fly-%{lookup('concourse::version')}-linux-amd64.tgz"
 concourse::worker_name: "%{facts.fqdn}"
