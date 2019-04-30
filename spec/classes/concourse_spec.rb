@@ -14,7 +14,6 @@ describe 'concourse' do
         context 'with init default params' do
           it { is_expected.to contain_archive('concourse_package') }
           it { is_expected.to contain_archive('fly_package') }
-          it { is_expected.to contain_file('/usr/local/concourse/bin/concourse') }
           it { is_expected.to contain_file('/etc/concourse') }
           it { is_expected.to contain_file('/opt/concourse/worker') }
           it { is_expected.to contain_file('/opt/concourse/session_signing_key') }
