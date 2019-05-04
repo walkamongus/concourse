@@ -45,7 +45,8 @@ describe 'concourse' do
         end
 
         context 'on version 5.x' do
-          let(:params) {{ :version => '5.1.0' }}
+          let(:params) { { :version => '5.1.0' } }
+
           it do
             is_expected.to contain_archive('concourse_package').with(
               'ensure'       => 'present',
