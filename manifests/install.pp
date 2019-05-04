@@ -34,53 +34,123 @@ class concourse::install (
     }
   }
 
-  $_concourse_binary = "/usr/local/bin/concourse-v${version}"
+  case $version {
+    /^4/: {
+      $_concourse = "/usr/local/bin/concourse-v${version}"
 
-  archive { 'concourse_binary':
-    ensure       => present,
-    path         => $_concourse_binary,
-    extract      => false,
-    source       => $concourse_source,
-    creates      => $_concourse_binary,
-    cleanup      => false,
-    proxy_server => $proxy_server,
+      archive { 'concourse_package':
+        ensure       => present,
+        path         => $_concourse,
+        extract      => false,
+        source       => $concourse_source,
+        creates      => $_concourse,
+        cleanup      => false,
+        proxy_server => $proxy_server,
+      }
+
+      file { '/usr/local/bin/concourse':
+        ensure => link,
+        target =>  $_concourse,
+      }
+
+      if $install_fly {
+        $_fly = "/usr/local/bin/fly-v${version}"
+
+        archive { 'fly_package':
+          ensure       => present,
+          path         => $_fly,
+          extract      => false,
+          source       => $fly_source,
+          creates      => $_fly,
+          cleanup      => false,
+          proxy_server => $proxy_server,
+        }
+
+        file { '/usr/local/bin/fly':
+          ensure => link,
+          target =>  $_fly,
+        }
+      }
+
+    }
+    /^5/: {
+      $_concourse = "/usr/local/concourse-${version}/concourse"
+
+      file { "/usr/local/concourse-${version}":
+        ensure => directory,
+        owner  => 'root',
+        group  => 'root',
+        mode   => '0755',
+      }
+
+      archive { 'concourse_package':
+        ensure       => present,
+        path         => "/tmp/concourse-${version}-linux-amd64.tgz",
+        extract      => true,
+        extract_path => "/usr/local/concourse-${version}",
+        source       => $concourse_source,
+        creates      => $_concourse,
+        cleanup      => false,
+        proxy_server => $proxy_server,
+      }
+
+      file { '/usr/local/concourse':
+        ensure => link,
+        target =>  $_concourse,
+      }
+
+      $_gdn = "/usr/local/concourse-${version}/bin/gdn"
+      exec { 'enable_gdn_execution':
+        command   => "chmod 0755 ${_gdn}",
+        path      => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
+        unless    => "[ $(stat -c '%a' ${_gdn}) == 755 ]",
+        subscribe => Archive['concourse_package'],
+      }
+
+      if $install_fly {
+        $_fly = "/opt/fly-${version}/fly"
+
+        file { "/opt/fly-${version}":
+          ensure => directory,
+          owner  => 'root',
+          group  => 'root',
+          mode   => '0755',
+        }
+
+        archive { 'fly_package':
+          ensure       => present,
+          path         => "/tmp/fly-${version}-linux-amd64.tgz",
+          extract      => true,
+          extract_path => "/opt/fly-${version}",
+          source       => $fly_source,
+          creates      => $_fly,
+          cleanup      => false,
+          proxy_server => $proxy_server,
+        }
+
+        file { '/usr/local/bin/fly':
+          ensure => link,
+          target =>  $_fly,
+        }
+
+      }
+    }
+    default: { fail("Concourse version ${version} not supported yet.") }
   }
 
   exec { 'enable_concourse_execution':
-    command   => "chmod 0755 ${_concourse_binary}",
+    command   => "chmod 0755 ${_concourse}",
     path      => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
-    unless    => "[ $(stat -c '%a' ${_concourse_binary}) == 755 ]",
-    subscribe => Archive['concourse_binary'],
-  }
-
-  file { '/usr/local/bin/concourse':
-    ensure => link,
-    target =>  $_concourse_binary,
+    unless    => "[ $(stat -c '%a' ${_concourse}) == 755 ]",
+    subscribe => Archive['concourse_package'],
   }
 
   if $install_fly {
-    $_fly_binary = "/usr/local/bin/fly-v${version}"
-
-    archive { 'fly_binary':
-      ensure       => present,
-      path         => $_fly_binary,
-      extract      => false,
-      source       => $fly_source,
-      creates      => $_fly_binary,
-      cleanup      => false,
-      proxy_server => $proxy_server,
-    }
-
     exec { 'enable_fly_execution':
-      command   => "chmod 0755 ${_fly_binary}",
+      command   => "chmod 0755 ${_fly}",
       path      => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
-      unless    => "[ $(stat -c '%a' ${_fly_binary}) == 755 ]",
-      subscribe => Archive['fly_binary'],
-    }
-
-    file { '/usr/local/bin/fly':
-      ensure => link,
-      target =>  $_fly_binary,
+      unless    => "[ $(stat -c '%a' ${_fly}) == 755 ]",
+      subscribe => Archive['fly_package'],
     }
   }
 

@@ -8,6 +8,7 @@ class concourse::config (
   $node_type,
   $worker_name,
   $environment,
+  $concourse_binary,
 ){
 
   $_name_env_var = "CONCOURSE_NAME=${worker_name}"
@@ -32,6 +33,7 @@ class concourse::config (
         content => epp('concourse/service/concourse.service.epp', {
           'node_type' => $node,
           'env_file'  => "/etc/concourse/${node_type}",
+          'concourse' => $concourse_binary,
         }),
         notify  => Exec['concourse_systemd_daemon-reload'],
       }
@@ -45,6 +47,7 @@ class concourse::config (
       mode    => '0644',
       content => epp('concourse/service/concourse.service.epp', {
         'node_type' => $node_type,
+        'concourse' => $concourse_binary,
       }),
       notify  => Exec['concourse_systemd_daemon-reload'],
     }
