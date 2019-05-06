@@ -99,7 +99,7 @@ class concourse::install (
         target =>  $_concourse,
       }
 
-      $_gdn = "/usr/local/concourse-${version}/bin/gdn"
+      $_gdn = "${_concourse}/bin/gdn"
       exec { 'enable_gdn_execution':
         command   => "chmod 0755 ${_gdn}",
         path      => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
