@@ -56,16 +56,30 @@ class concourse (
   Boolean $generate_session_signing_key,
   Boolean $generate_worker_key,
   Boolean $upgrade_kernel,
-  Stdlib::Httpurl $concourse_source,
-  Stdlib::Httpurl $fly_source,
+  Optional[Stdlib::Httpurl] $concourse_source,
+  Optional[Stdlib::Httpurl] $fly_source,
   String $worker_name,
 ){
+
+  case $version {
+    /^4/: {
+      $_concourse_source = pick($concourse_source, "https://github.com/concourse/concourse/releases/download/v${version}/concourse_linux_amd64")
+      $_fly_source       = pick($fly_source, "https://github.com/concourse/concourse/releases/download/v${version}/fly_linux_amd64")
+      $_concourse_binary = '/usr/local/bin/concourse'
+    }
+    /^5/: {
+      $_concourse_source = pick($concourse_source, "https://github.com/concourse/concourse/releases/download/v${version}/concourse-${version}-linux-amd64.tgz")
+      $_fly_source       = pick($fly_source, "https://github.com/concourse/concourse/releases/download/v${version}/fly-${version}-linux-amd64.tgz")
+      $_concourse_binary = '/usr/local/concourse/bin/concourse'
+    }
+    default: { fail("Concourse version ${version} not supported yet.") }
+  }
 
   class { 'concourse::install':
     version                      => $version,
     node_type                    => $node_type,
-    concourse_source             => $concourse_source,
-    fly_source                   => $fly_source,
+    concourse_source             => $_concourse_source,
+    fly_source                   => $_fly_source,
     install_fly                  => $install_fly,
     proxy_server                 => $proxy_server,
     environment                  => $environment,
@@ -77,9 +91,10 @@ class concourse (
   contain 'concourse::install'
 
   class { 'concourse::config':
-    node_type   => $node_type,
-    environment => $environment,
-    worker_name => $worker_name,
+    node_type        => $node_type,
+    environment      => $environment,
+    concourse_binary => $_concourse_binary,
+    worker_name      => $worker_name,
   }
   contain 'concourse::config'
 

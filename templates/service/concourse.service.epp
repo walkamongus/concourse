@@ -1,5 +1,6 @@
 <%- |
   $node_type,
+  $concourse,
   $env_file = "/etc/concourse/${node_type}",
 | -%>
 # This file is managed by Puppet and local changes
@@ -12,10 +13,10 @@ After=network.target network-online.target
 EnvironmentFile=<%= $env_file %>
 Restart=on-failure
 StartLimitBurst=5
-ExecStart=/usr/local/bin/concourse <%= $node_type %>
+ExecStart=<%= $concourse %> <%= $node_type %>
 <% if $node_type == 'worker' { -%>
-ExecStop=/usr/local/bin/concourse land-worker
-ExecStop=/usr/local/bin/concourse retire-worker
+ExecStop=<%= $concourse %> land-worker
+ExecStop=<%= $concourse %> retire-worker
 <% } -%>
 
 [Install]
