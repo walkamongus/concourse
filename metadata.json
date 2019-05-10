@@ -1,6 +1,6 @@
 {
   "name": "walkamongus-concourse",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "Chadwick Banning",
   "summary": "Install and configure Concourse CI (https://concourse-ci.org).",
   "license": "Apache-2.0",
